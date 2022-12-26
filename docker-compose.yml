@@ -91,20 +91,30 @@ services:
       mastodon-web:
         condition: service_healthy
 
-  mastodon-proxy:
-    image: 'caddy:alpine'
-    volumes:
-      - 'caddy-data-volume:/data'
-      - 'caddy-config-volume:/config'
-      - './Caddyfile:/etc/caddy/Caddyfile:ro'
+  # mastodon-proxy:
+  #   image: 'caddy:alpine'
+  #   volumes:
+  #     - 'caddy-data-volume:/data'
+  #     - 'caddy-config-volume:/config'
+  #     - './Caddyfile:/etc/caddy/Caddyfile:ro'
+  #   environment:
+  #     MASTODON_DOMAIN: '${MASTODON_DOMAIN}'
+  #     MASTODON_S3_DOMAIN: '${MASTODON_S3_DOMAIN}'
+  #     MASTODON_S3_ENDPOINT: '${MASTODON_S3_ENDPOINT}'
+  #     MASTODON_S3_PATH_PREFIX: '${MASTODON_S3_PATH_PREFIX}'
+  #   ports:
+  #     - '80:80'
+  #     - '443:443'
+  #   depends_on:
+  #     mastodon-web:
+  #       condition: service_healthy
+
+  # Create a new tunnel at https://one.dash.cloudflare.com/
+  mastodon-tunnel:
+    image: 'cloudflare/cloudflared:latest'
+    command: 'tunnel run'
     environment:
-      MASTODON_DOMAIN: '${MASTODON_DOMAIN}'
-      MASTODON_S3_DOMAIN: '${MASTODON_S3_DOMAIN}'
-      MASTODON_S3_ENDPOINT: '${MASTODON_S3_ENDPOINT}'
-      MASTODON_S3_PATH_PREFIX: '${MASTODON_S3_PATH_PREFIX}'
-    ports:
-      - '80:80'
-      - '443:443'
+      TUNNEL_TOKEN: '${CLOUDFLARED_TOKEN}'
     depends_on:
       mastodon-web:
         condition: service_healthy
@@ -116,7 +126,7 @@ volumes:
     external: true
   mastodon-redis-volume:
     external: true
-  caddy-data-volume:
-    external: true
-  caddy-config-volume:
-    external: true
+  # caddy-data-volume:
+  #   external: true
+  # caddy-config-volume:
+  #   external: true
